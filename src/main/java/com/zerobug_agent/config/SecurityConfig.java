@@ -29,11 +29,14 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(HttpMethod.GET, "/api/health").permitAll()
+                .requestMatchers("/api/test-rag/**").permitAll()
                 .requestMatchers("/api/auth/login", "/api/auth/register",
                         "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                 .requestMatchers("/assets/**", "/index.html", "/favicon.ico", "/vite.svg").permitAll()
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                
                 .requestMatchers("/api/**").authenticated()
+                
                 .anyRequest().permitAll()
             )
             .formLogin(form -> form.disable())

@@ -3,10 +3,11 @@ spring:
     name: zerobug-agent
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/zerobug
+    url: jdbc:postgresql://database-1.crg8g8eyy9ib.ap-southeast-1.rds.amazonaws.com:5432/
     username: postgres
-    password: admin
+    password: Hoa230969
     driver-class-name: org.postgresql.Driver
+    
 
   jpa:
     hibernate:
@@ -52,13 +53,12 @@ zerobug:
   mail:
     dev-mode: ${MAIL_DEV_MODE:true}
   aws:
-    enabled: ${AWS_ENABLED:false}
-    region: ${AWS_REGION:ap-southeast-1}
-    bedrock-region: ${BEDROCK_REGION:us-east-1}
-    knowledge-base-id: ${BEDROCK_KNOWLEDGE_BASE_ID:}
+    enabled: true
+    region: ap-southeast-1
+    bedrock-region: ap-southeast-1
+    knowledge-base-id: ${BEDROCK_KNOWLEDGE_BASE_ID:} # Để trống hoặc nhận từ biến môi trường
     data-source-id: ${BEDROCK_DATA_SOURCE_ID:}
-    model-id: ${BEDROCK_MODEL_ID:anthropic.claude-3-haiku-20240307-v1:0}
-
+    model-id: ${BEDROCK_MODEL_ID:google.gemma-3-12b-instruct-v1:0}
 logging:
   level:
     com.testbuddy: INFO

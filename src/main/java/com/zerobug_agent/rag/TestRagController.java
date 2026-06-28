@@ -1,34 +1,39 @@
 package com.zerobug_agent.rag;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/test-rag")
 public class TestRagController {
 
-    private final VectorStoreService vectorStoreService;
+    private static final Logger log = LoggerFactory.getLogger(TestRagController.class);
+    private final AgenticLoopService agenticLoopService;
 
-    public TestRagController(VectorStoreService vectorStoreService) {
-        this.vectorStoreService = vectorStoreService;
+    public TestRagController(AgenticLoopService agenticLoopService) {
+        this.agenticLoopService = agenticLoopService;
     }
 
-    @PostMapping("/embed-file")
-    public ResponseEntity<String> testEmbedFile(@RequestBody String sampleCode) {
+    @PostMapping("/generate")
+    public ResponseEntity<String> generateTest(@RequestBody Map<String, String> payload) {
         try {
-            // Giả lập tên file
-            Long dummyProjectId = 1L;
-            String dummyFilePath = "src/main/java/com/example/UserService.java";
+            // Lấy câu hỏi từ JSON body
+            String userQuery = payload.get("query");
             
-            // Gọi luồng xử lý chính: Cắt code -> Lấy Vector -> Lưu Database
-            vectorStoreService.processAndStoreFile(dummyProjectId, dummyFilePath, sampleCode);
+            log.info("Nhận yêu cầu: " + userQuery); 
+            // Có thể mở rộng truyền thêm projectId hoặc fileName vào hàm này sau
+            String result = agenticLoopService.executeSelfCorrectionLoop(userQuery);
             
-            return ResponseEntity.ok("Thành công! Đã cắt code, nhúng Vector và lưu xuống PostgreSQL.");
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.internalServerError().body("Lỗi rồi: " + e.getMessage());
+            log.error("Lỗi Controller: ", e);
+            return ResponseEntity.internalServerError().body("Lỗi hệ thống: " + e.getMessage());
         }
     }
 }

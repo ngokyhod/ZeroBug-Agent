@@ -21,53 +21,68 @@ public class LambdaOrchestratorService {
     private final LambdaClient lambdaClient;
     private final ObjectMapper objectMapper;
 
-    // Tên của hàm Lambda khi bạn deploy lên AWS
-    @Value("${aws.lambda.rag-context:RagContextLambdaFunction}")
-    private String ragLambdaName;
+    // Tên 2 con Lambda thực tế của bạn trên AWS
+    private final String ragContextLambdaName = "RagContextLambda"; 
+    private final String bedrockInvokeLambdaName = "BedrockInvokeLambda";
 
     public LambdaOrchestratorService(@Value("${zerobug.aws.region:us-east-1}") String region) {
-        this.lambdaClient = LambdaClient.builder()
-                .region(Region.of(region))
-                .build();
+        this.lambdaClient = LambdaClient.builder().region(Region.of(region)).build();
         this.objectMapper = new ObjectMapper();
     }
 
-    /**
-     * Dùng AWS SDK để "bấm nút" gọi Lambda 13 trên mây
-     */
     public String requestUnitTestFromCloud(String userQuery) {
-        log.info("📡 Đang gửi yêu cầu RAG lên AWS Lambda: {}", userQuery);
-
         try {
-            // Chuẩn bị gói hàng gửi lên Lambda 13
-            Map<String, String> payload = new HashMap<>();
-            payload.put("query", userQuery);
-            String jsonPayload = objectMapper.writeValueAsString(payload);
+            // ====================================================
+            // GIAI ĐOẠN 1: GỌI LAMBDA 13 (CẮT CODE & RAG)
+            // ====================================================
+            log.info("📡 Đang gửi câu hỏi lên Lambda 13 (Context Builder)...");
+            Map<String, String> payload13 = new HashMap<>();
+            payload13.put("query", userQuery);
 
-            InvokeRequest request = InvokeRequest.builder()
-                    .functionName(ragLambdaName) // Gọi đích danh tên con Lambda 13
-                    .payload(SdkBytes.fromUtf8String(jsonPayload))
+            InvokeRequest req13 = InvokeRequest.builder()
+                    .functionName(ragContextLambdaName)
+                    .payload(SdkBytes.fromUtf8String(objectMapper.writeValueAsString(payload13)))
                     .build();
 
-            // Chờ Lambda trên Cloud chạy xong và nhận kết quả (Code Unit Test)
-            InvokeResponse response = lambdaClient.invoke(request);
-            String responseJson = response.payload().asUtf8String();
-            
-            // Bóc tách kết quả từ Lambda
-            Map<String, String> result = objectMapper.readValue(responseJson, Map.class);
-            
-            if ("SUCCESS".equals(result.get("status"))) {
-                log.info("✅ Lambda xử lý thành công! Đã mang code về EC2.");
-                // Lambda 13 -> gọi tiếp Lambda 15 -> kết quả cuối cùng trả về đây.
-                // Tùy theo luồng setup trên AWS, giả định result chứa key "generated_code"
-                return result.get("generated_code"); 
-            } else {
-                return "Lỗi từ mây: " + result.get("errorMessage");
+            InvokeResponse res13 = lambdaClient.invoke(req13);
+            Map<String, String> result13 = objectMapper.readValue(res13.payload().asUtf8String(), Map.class);
+
+            if (!"SUCCESS".equals(result13.get("status"))) {
+                return "Lỗi từ Lambda 13: " + result13.get("errorMessage");
             }
+            
+            String finalPrompt = result13.get("final_prompt");
+            log.info("✅ Lambda 13 đã nén xong Context. Chuẩn bị gọi AI...");
+
+            // ====================================================
+            // GIAI ĐOẠN 2: GỌI LAMBDA 15 (BEDROCK MISTRAL)
+            // ====================================================
+            log.info("🚀 Đang gửi Prompt lên Lambda 15 (Bedrock Invoke)...");
+            Map<String, Object> payload15 = new HashMap<>();
+            payload15.put("final_prompt", finalPrompt);
+
+            InvokeRequest req15 = InvokeRequest.builder()
+                    .functionName(bedrockInvokeLambdaName)
+                    .payload(SdkBytes.fromUtf8String(objectMapper.writeValueAsString(payload15)))
+                    .build();
+
+            InvokeResponse res15 = lambdaClient.invoke(req15);
+            // Kết quả của Lambda 15 trả về là chuỗi thuần (code Unit Test), không phải JSON map
+            String generatedCode = res15.payload().asUtf8String();
+            
+            // Xóa dấu ngoặc kép bọc ngoài chuỗi (nếu có) do Lambda trả về
+            if (generatedCode.startsWith("\"") && generatedCode.endsWith("\"")) {
+                generatedCode = generatedCode.substring(1, generatedCode.length() - 1);
+            }
+            // Fix lỗi xuống dòng bị biến thành \n trong chuỗi
+            generatedCode = generatedCode.replace("\\n", "\n").replace("\\\"", "\"");
+
+            log.info("✅ Lambda 15 xử lý thành công! Đã mang code về máy.");
+            return generatedCode;
 
         } catch (Exception e) {
-            log.error("Lỗi khi kết nối AWS Lambda: {}", e.getMessage());
-            return "Mất kết nối với hệ thống AI Serverless.";
+            log.error("Lỗi đứt cáp lên mây AWS: {}", e.getMessage());
+            return "Mất kết nối với hệ thống Serverless.";
         }
     }
 }
