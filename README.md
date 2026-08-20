@@ -13,6 +13,27 @@ The platform operates as **two independent services** (Frontend and Backend) com
 
 ---
 
+## 📖 Workshop & Demo
+
+For in-depth architecture details and AWS integration patterns, and a short demo of the project running on AWS, see:
+
+- **FCAJ Workshop** — Detailed workshop notes and walkthrough of the AWS setup and what was built for this project:
+  https://ngokyhod.github.io/FCAJ-Workshop/  
+  (Tiếng Việt: bài workshop này trình bày chi tiết những gì tôi đã làm với đồ án trên AWS)
+
+- **YouTube Demo (Video walkthrough & demo)** — A short demo video showing the project in action on AWS:
+  https://youtu.be/aVMADaZOKDU  
+  (Tiếng Việt: video demo)
+
+The workshop and demo cover:
+- AWS infrastructure setup
+- Spring Boot best practices
+- Bedrock AI integration
+- PostgreSQL vector search
+- Microservices patterns
+
+---
+
 ## 🏗️ Architecture
 
 ### System Architecture Overview
@@ -356,8 +377,7 @@ The ZeroBug Agent separates Frontend and Backend into **independent services**:
   - Provide RESTful APIs via **ProjectApiController**
   - Process AI model invocations
 
-#### **Frontend (Separate Repository/Module)**
-- **Role**: User Interface
+#### **Frontend (Separate Repository/Module)**n- **Role**: User Interface
 - **Technology**: React/Vue.js + JavaScript/TypeScript
 - **Port**: `3000` (configurable)
 - **Deployment**: AWS S3 + CloudFront
@@ -388,14 +408,6 @@ The ZeroBug Agent separates Frontend and Backend into **independent services**:
        ├─► Bedrock Runtime (AI inference)
        └─► Lambda (Async processing)
 ```
-
-### Why Separate?
-
-1. **Independent Scaling**: Each tier can scale based on demand
-2. **Technology Flexibility**: Use best tech for each layer
-3. **Deployment Independence**: Deploy backend without frontend
-4. **Team Autonomy**: Frontend and backend teams work independently
-5. **Better Performance**: Frontend served via CDN (S3 + CloudFront)
 
 ---
 
@@ -508,27 +520,6 @@ COPY target/zerobug-agent-app-1.0.0.jar .
 EXPOSE 8080
 CMD ["java", "-jar", "zerobug-agent-app-1.0.0.jar", "--spring.profiles.active=aws"]
 ```
-
----
-
-## 📖 Workshop & Demo
-
-For in-depth architecture details and AWS integration patterns, refer to:
-
-- **FCAJ Workshop** — Detailed workshop notes and walkthrough of the AWS setup and what was built for this project:
-  https://ngokyhod.github.io/FCAJ-Workshop/  
-  (Tiếng Việt: bài workshop này trình bày chi tiết những gì tôi đã làm với đồ án trên AWS)
-
-- **YouTube Demo (Video walkthrough & demo)** — A short demo video showing the project in action on AWS:
-  https://youtu.be/aVMADaZOKDU  
-  (Tiếng Việt: video demo)
-
-The workshop covers:
-- AWS infrastructure setup
-- Spring Boot best practices
-- Bedrock AI integration
-- PostgreSQL vector search
-- Microservices patterns
 
 ---
 
