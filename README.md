@@ -7,7 +7,7 @@
 
 ## 📌 Overview
 
-**ZeroBug Agent** is an enterprise-grade, AI-powered platform designed to automatically generate unit tests for Java projects. Built on **AWS cloud infrastructure**, it leverages advanced technologies including **Spring Boot**, **Amazon Bedrock**, and **PostgreSQL with vector search** to analyze source code and intelligently generate comprehensive test suites.
+**ZeroBug Agent** is an enterprise-grade, AI-powered platform designed to automatically generate unit tests for Java projects. Built on **AWS cloud infrastructure**, it leverages advanced technolo[...]
 
 The platform operates as **two independent services** (Frontend and Backend) communicating through RESTful APIs via the **ProjectApiController**, enabling scalability and independent deployment.
 
@@ -20,9 +20,9 @@ The platform operates as **two independent services** (Frontend and Backend) com
 The ZeroBug Agent platform is built using modern AWS cloud-native technologies:
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────────────────────�[...]
 │                          USER TIER                               │
-├─────────────────────────────────────────────────────────────────┤
+├────────────────────────────────────────────────────────────────�[...]
 │ • Web Browser (SPA)          • Desktop Client (Electron)        │
 │ • Developer IDE Integration  • CLI Tools                        │
 └────────────────────────┬──────────────────────────────────────┘
@@ -41,7 +41,7 @@ The ZeroBug Agent platform is built using modern AWS cloud-native technologies:
 │ ┌──────────────────────────────────────────────────────────┐ │
 │ │          Spring Boot Microservices                       │ │
 │ ├──────────────────────────────────────────────────────────┤ │
-│ │ • ProjectApiController (REST API)                        │ │
+│ │ • ProjectApiController (REST API)                        │ ���
 │ │ • Source File Service  • Result Service                  │ │
 │ │ • History Service      • AI Invoke Service               │ │
 │ │ • Project Import Service (Git/JPA)                       │ │
@@ -62,8 +62,8 @@ The ZeroBug Agent platform is built using modern AWS cloud-native technologies:
 ┌──▼─────┐  ┌───▼──┐   ┌──────▼────┐  ┌────▼────┐
 │Bedrock │  │  S3  │   │PostgreSQL  │  │Secrets  │
 │Runtime │  │Cache │   │  + pgVector│  │Manager  │
-│(Claude)│  │Code  │   │Embeddings  │  │(Creds)  │
-└────────┘  └──────┘   └────────────┘  └─────────┘
+│(Claude)│  └──────┘   └────────────┘  └─────────┘
+└────────┘  
 ```
 
 ---
@@ -123,8 +123,8 @@ ZeroBug-Agent/
 │   │   │       ├── service/
 │   │   │       │   ├── ProjectService.java
 │   │   │       │   ├── SourceFileService.java
-│   │   │       │   ├── ResultService.java
-│   │   │       │   ├── HistoryService.java
+│   │   │       │   │   ├── ResultService.java
+│   │   │       │   │   ├── HistoryService.java
 │   │   │       │   └── AIInvokeService.java            # Bedrock integration
 │   │   │       ├── entity/
 │   │   │       ├── repository/
@@ -511,10 +511,17 @@ CMD ["java", "-jar", "zerobug-agent-app-1.0.0.jar", "--spring.profiles.active=aw
 
 ---
 
-## 📖 Workshop Reference
+## 📖 Workshop & Demo
 
 For in-depth architecture details and AWS integration patterns, refer to:
-📌 **[FCAJ Workshop - Sections 5.x.x](https://ngokyhod.github.io/FCAJ-Workshop/)**
+
+- **FCAJ Workshop** — Detailed workshop notes and walkthrough of the AWS setup and what was built for this project:
+  https://ngokyhod.github.io/FCAJ-Workshop/  
+  (Tiếng Việt: bài workshop này trình bày chi tiết những gì tôi đã làm với đồ án trên AWS)
+
+- **YouTube Demo (Video walkthrough & demo)** — A short demo video showing the project in action on AWS:
+  https://youtu.be/aVMADaZOKDU  
+  (Tiếng Việt: video demo)
 
 The workshop covers:
 - AWS infrastructure setup
@@ -561,6 +568,7 @@ This project is proprietary and closed-source. All rights reserved.
 - **Author**: @ngokyhod
 - **Repository**: [ngokyhod/ZeroBug-Agent](https://github.com/ngokyhod/ZeroBug-Agent)
 - **Workshop**: [FCAJ Workshop](https://ngokyhod.github.io/FCAJ-Workshop/)
+- **Demo Video**: https://youtu.be/aVMADaZOKDU
 
 ---
 
